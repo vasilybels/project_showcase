@@ -56,9 +56,6 @@ display({
 });
 ``` -->
 
-
- 
-
 ```js
 import { renderRadialPresenceChart } from "./components/chart2.js";
 display(renderRadialPresenceChart({data: sonycCharts.radialPresence, width}));

@@ -17,18 +17,14 @@ export default {
   // ],
 
   // Site-wide stylesheet (must @import observablehq:default.css to keep the theme).
-  style: "style.css",
+  style: "custom-style.css",
 
   globalStylesheets: [
-    "https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap",
-    "https://fonts.googleapis.com/css2?family=Monda:wght@400..700&display=swap",
-    "https://fonts.googleapis.com/css2?family=Monda:wght@400..700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap",
-    "https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&display=swap"
+    "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap"
   ],
 
   // The path to the source root.
   root: "src",
-  theme: ["parchment", "ink"], // try "light", "dark", "slate", etc.
   // header: "", // what to show in the header (HTML)
   sidebar: true, // whether to show the sidebar
   // toc: true, // whether to show the table of contents

@@ -1,8 +1,10 @@
 import * as d3 from "npm:d3";
 import {SONYC_COARSE_CATEGORIES, SONYC_COARSE_KEY_BY_NAME} from "../sonycData.js";
+import {createFlagshipColorScale} from "./colorScale.js";
 
 const transitionMs = 100;
 const defaultOpacity = 0.75;
+const chartMaxWidth = 640; // matches the theme's max text width so charts align with body copy
 const groupFillOpacity = 0.08; // soft category wash behind each coarse group, for Gestalt grouping
 const leafStrokeWidth = 0;
 const groupStrokeWidth = 0;
@@ -24,20 +26,18 @@ const minGroupLabelInsetPx = 6;
 // ```
 export const renderBubbleChart = ({
   data,
-  width = 928,
-  heading = "Cars and Humans are Most Frequent Noise Sources",
-  subheading = "Total number of occurrences of each sound in the SONYC-UST dataset, by fine- and coarse- grained category.",
+  width = 1500,
+  heading = "Cars Dominate the City Soundscape",
+  subheading = "Total number of occurrences of each sound in the SONYC-UST dataset, by category.",
   footnote = "Source: Sounds of New York City Urban Sound Tagging (SONYC-UST) dataset, version 2.4."
 } = {}) => {
   if (!data || typeof data !== "object") {
     throw new Error("This chart requires a hierarchical data object.");
   }
 
-  const myColors = ['#450840', '#541535', '#5b2531', '#603431', '#634231', '#645033', '#645f35', '#626d39', '#5e7b3d'];
-
-  const chartWidth = Math.max(320, width);
-  const chartHeight = Math.max(420, Math.round(chartWidth * 0.78));
-  const palette = d3.scaleOrdinal().domain(SONYC_COARSE_CATEGORIES).range(myColors);
+  const chartWidth = Math.min(chartMaxWidth, Math.max(320, width));
+  const chartHeight = Math.max(420, chartWidth);
+  const palette = createFlagshipColorScale(SONYC_COARSE_CATEGORIES);
   const formatCount = d3.format(",d");
 
   const root = d3.hierarchy(data)
@@ -249,7 +249,7 @@ export const renderBubbleChart = ({
       .transition()
       .duration(transitionMs)
       .attr("stroke-width", (d) => {
-        if (d.depth === 0) return 0;
+        if (d.depth === 0 || !isGroup(d)) return 0; // leaf circles never gain a stroke on hover
         return nodeId(d) === targetId ? strokeWidthFor(d) + 1 : strokeWidthFor(d);
       })
       .attr("fill", (d) => {

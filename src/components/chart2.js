@@ -2,20 +2,21 @@ import * as d3 from "npm:d3";
 import {
   buildRadialPresenceData,
   filterUniversalTruthRows,
-  SONYC_COARSE_CATEGORIES,
   SONYC_COARSE_LABELS
 } from "../sonycData.js";
+import {createFlagshipColorScale} from "./colorScale.js";
 
 const transitionMs = 100;
-const defaultOpacity = 0.5;
+// Stacked rings no longer overlap, so a high baseline opacity keeps each
+// ring's color distinct instead of the washed-out look transparency needs
+// for overlapping areas.
+const defaultOpacity = 0.9;
 const areaStrokeWidth = 0.5;
 const areaStrokeWidthHover = 0;
 const lightFillLuminanceThreshold = 0.6;
-const radialChartMaxWidth = 700;
+const chartMaxWidth = 640; // matches the theme's max text width so charts align with body copy
 
 let selectedCategory = null;
-
-const myColors = ['#450840', '#541535', '#5b2531', '#603431', '#634231', '#645033', '#645f35', '#626d39', '#5e7b3d'];
 
 // MD USAGE:
 // ```js
@@ -28,9 +29,12 @@ const myColors = ['#450840', '#541535', '#5b2531', '#603431', '#634231', '#64503
 export const renderRadialPresenceChart = ({
   data,
   width = 928,
-  heading = "City of Commuters",
+  heading = "Commuter City",
   subheading = "How often the sounds from each coarse-grained category were recorded, by time of day.",
-  footnote = "Source: Sounds of New York City Urban Sound Tagging (SONYC-UST) dataset, version 2.4."
+  footnote = "Source: Sounds of New York City Urban Sound Tagging (SONYC-UST) dataset, version 2.4.",
+  // Back-end control for stack order: "ascending" stacks the smallest total
+  // innermost/bottom and the largest outermost/top; "descending" reverses it.
+  stackOrder = "ascending"
 } = {}) => {
   let radialData;
   if (Array.isArray(data)) {
@@ -41,16 +45,20 @@ export const renderRadialPresenceChart = ({
     throw new Error("This chart requires either CSV rows or preprocessed radial data.");
   }
 
-  const {processedData, maxVal, sortedCategories, labelsByCategory = SONYC_COARSE_LABELS} = radialData;
+  const {processedData, sortedCategories, labelsByCategory = SONYC_COARSE_LABELS} = radialData;
   const displayCategoryName = (name) => String(name ?? "");
 
-  const chartWidth = Math.min(radialChartMaxWidth, Math.max(360, width));
+  const chartWidth = Math.min(chartMaxWidth, Math.max(360, width));
   const chartHeight = chartWidth;
   const margin = 5;
   const fixedInnerRadius = chartWidth / 6;
   const fixedOuterRadius = chartWidth / 2 - margin;
 
-  const colorScheme = d3.scaleOrdinal().domain(SONYC_COARSE_CATEGORIES).range(myColors);
+  // Smallest-total-first ordering, reused both for the stack and the color
+  // progression so the rings read as a smooth gradient from center to edge.
+  const ascendingCategories = [...sortedCategories].reverse();
+  const stackCategories = stackOrder === "descending" ? sortedCategories : ascendingCategories;
+  const colorScheme = createFlagshipColorScale(stackCategories);
 
   const container = d3.create("figure")
     .attr("class", "radial-presence-chart")
@@ -182,28 +190,27 @@ export const renderRadialPresenceChart = ({
 
 
 
-  function handleHover(hoveredIndex, labelText, valueText, categoryKey) {
-    wrapCenterText(labelText, valueText, categoryKey);
+  function handleHover(categoryKey, labelText, valueTotal) {
+    wrapCenterText(labelText, valueTotal, categoryKey);
 
     centerTextGroup.interrupt().transition().duration(transitionMs).attr("opacity", 0.8);
 
-    
     areaGroup
       .selectAll(".area-path")
       .interrupt()
       .transition()
       .duration(transitionMs)
-      .attr("opacity", (_d, i) => (i === hoveredIndex ? defaultOpacity * 2 : defaultOpacity * 0.5))
-      .attr("stroke-width", (_d, i) => (i === hoveredIndex ? areaStrokeWidthHover : 0));
+      .attr("opacity", (s) => (s.key === categoryKey ? defaultOpacity * 2 : defaultOpacity * 0.5))
+      .attr("stroke-width", (s) => (s.key === categoryKey ? areaStrokeWidthHover : 0));
 
     legend
       .selectAll(".radial-presence-chart__legend-item")
       .interrupt()
       .transition()
       .duration(transitionMs)
-      .style("background", (_d, i) => (i === hoveredIndex ? "rgba(127,127,127,0.14)" : "transparent"))
-      .style("border-color", (_d, i) => (i === hoveredIndex ? strokeForCategory(sortedCategories[i]) : "transparent"))
-      .style("opacity", (_d, i) => (i === hoveredIndex ? 1 : 0.5));
+      .style("background", (cat) => (cat === categoryKey ? "rgba(127,127,127,0.14)" : "transparent"))
+      .style("border-color", (cat) => (cat === categoryKey ? strokeForCategory(cat) : "transparent"))
+      .style("opacity", (cat) => (cat === categoryKey ? 1 : 0.5));
   }
 
   function clearHover() {
@@ -259,77 +266,73 @@ export const renderRadialPresenceChart = ({
       return;
     }
 
-    const selectedIndex = sortedCategories.indexOf(selectedCategory);
     const selectedName = displayCategoryName(labelsByCategory[selectedCategory] ?? selectedCategory);
-    const selectedTotal = d3.sum(processedData, (row) => row[selectedCategory]);
-    handleHover(selectedIndex, selectedName, selectedTotal, selectedCategory);
+    const selectedTotal = d3.sum(processedData, (row) => row[selectedCategory] ?? 0);
+    handleHover(selectedCategory, selectedName, selectedTotal);
   }
 
-  sortedCategories.forEach((cat) => {
-    const cleanName = displayCategoryName(labelsByCategory[cat] ?? cat);
-
-    const item = legend
-      .append("div")
-      .attr("class", "radial-presence-chart__legend-item")
-      .on("click", (event) => {
-        event.stopPropagation();
-        toggleCategory(cat);
-      })
-      .on("mouseenter", () => {
-        if (selectedCategory) return;
-        const hoveredIndex = sortedCategories.indexOf(cat);
-        const totalSum = d3.sum(processedData, (row) => row[cat]);
-        handleHover(hoveredIndex, cleanName, totalSum, cat);
-      })
-      .on("mouseleave", () => {
-        if (selectedCategory) return;
-        handleMouseLeave();
-      });
-
-    // item
-    //   .append("span")
-    //   .attr("class", "radial-presence-chart__legend-swatch")
-    //   .style("background-color", colorScheme(cat))
-    //   .style("border", `0px solid ${strokeForCategory(cat)}`);
-
-    item.append("span").text(cleanName);
-  });
-
-  const y = d3.scaleLinear().domain([0, maxVal]).range([fixedInnerRadius, fixedOuterRadius]);
-
-  const area = d3
-    .areaRadial()
-    .curve(d3.curveLinearClosed)
-    .angle((d) => x(d.hour))
-    .innerRadius(() => y(0));
-
-  areaGroup
-    .selectAll("path")
+  const legendItems = legend
+    .selectAll(".radial-presence-chart__legend-item")
     .data(sortedCategories)
-    .join("path")
-    .attr("class", "area-path")
-    .attr("fill", colorScheme)
-    .attr("stroke", (cat) => strokeForCategory(cat))
-    .attr("stroke-width", 0)
-    .attr("opacity", defaultOpacity)
-    .attr("d", (cat) => {
-      const customArea = area.outerRadius((d) => y(d[cat]));
-      return customArea(processedData);
-    })
+    .join("div")
+    .attr("class", "radial-presence-chart__legend-item")
     .on("click", (event, cat) => {
       event.stopPropagation();
       toggleCategory(cat);
     })
     .on("mouseenter", (_event, cat) => {
-      const activeCategory = selectedCategory ?? cat;
-      const activeIndex = sortedCategories.indexOf(activeCategory);
-      const cleanName = displayCategoryName(labelsByCategory[activeCategory] ?? activeCategory);
-      const totalSum = d3.sum(processedData, (row) => row[activeCategory]);
-      handleHover(activeIndex, cleanName, totalSum, activeCategory);
-      showTooltip(_event, activeCategory);
+      if (selectedCategory) return;
+      const totalSum = d3.sum(processedData, (row) => row[cat] ?? 0);
+      handleHover(cat, displayCategoryName(labelsByCategory[cat] ?? cat), totalSum);
     })
-    .on("mousemove", (event, cat) => {
-      showTooltip(event, selectedCategory ?? cat);
+    .on("mouseleave", () => {
+      if (selectedCategory) return;
+      handleMouseLeave();
+    });
+
+  legendItems.append("span").text((cat) => displayCategoryName(labelsByCategory[cat] ?? cat));
+
+  const stackGenerator = d3
+    .stack()
+    .keys(stackCategories)
+    .value((row, key) => row[key] ?? 0)
+    .order(d3.stackOrderNone)
+    .offset(d3.stackOffsetNone);
+  const series = stackGenerator(processedData);
+  const maxStackTotal = d3.max(series, (s) => d3.max(s, (d) => d[1])) ?? 1;
+
+  const y = d3.scaleLinear().domain([0, maxStackTotal]).range([fixedInnerRadius, fixedOuterRadius]);
+
+  const area = d3
+    .areaRadial()
+    .curve(d3.curveLinearClosed)
+    .angle((d) => x(d.data.hour))
+    .innerRadius((d) => y(d[0]))
+    .outerRadius((d) => y(d[1]));
+
+  areaGroup
+    .selectAll("path")
+    .data(series, (s) => s.key)
+    .join("path")
+    .attr("class", "area-path")
+    .attr("fill", (s) => colorScheme(s.key))
+    .attr("stroke", (s) => strokeForCategory(s.key))
+    .attr("stroke-width", 0)
+    .attr("opacity", defaultOpacity)
+    .attr("d", area)
+    .on("click", (event, s) => {
+      event.stopPropagation();
+      toggleCategory(s.key);
+    })
+    .on("mouseenter", (event, s) => {
+      const activeCategory = selectedCategory ?? s.key;
+      const cleanName = displayCategoryName(labelsByCategory[activeCategory] ?? activeCategory);
+      const totalSum = d3.sum(processedData, (row) => row[activeCategory] ?? 0);
+      handleHover(activeCategory, cleanName, totalSum);
+      showTooltip(event, activeCategory);
+    })
+    .on("mousemove", (event, s) => {
+      showTooltip(event, selectedCategory ?? s.key);
     })
     .on("mouseleave", () => {
       if (!selectedCategory) {
