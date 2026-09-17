@@ -123,7 +123,7 @@ export function buildBubbleHierarchy(rows, rootName = "Sounds") {
     }
   }
 
-  return {id: "root", name: rootName, children};
+  return {id: "root", name: rootName, children, totalRows: rows.length};
 }
 
 export function buildRadialPresenceData(rows) {

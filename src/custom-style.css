@@ -10,7 +10,7 @@
     --theme-foreground-faint: #DADADA;
     --theme-foreground-fainter: #F5F5F5;
     --theme-foreground-faintest: #FAFAFA;
-    --theme-foreground-focus: #BD4639;
+    --theme-foreground-focus: #245DB2;
     
     --chart-opacity-default: 0.75;
     --chart-group-fill-opacity: 0.08;
@@ -27,7 +27,7 @@
    
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2 {
     font-family: "Old Standard TT", serif;
     font-optical-sizing: auto;
     font-weight: 400;
@@ -35,8 +35,17 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: var(--heading-copy-gap);
 }
 
+h3, h4, h5, h6 {
+    font-family: "DM Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    margin-bottom: var(--heading-copy-gap); 
+}
+
+
 h1 {
-    font-size: 48px;
+    font-size: 52px;
     color: var(--theme-foreground-alt);
 }
 
@@ -62,7 +71,7 @@ body {
 p a {
     text-decoration: none;
     font-weight: 700;
-    color: var(--theme-foreground-focus);
+    color: #BD4639!important;
 }
 
 svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip {
@@ -129,6 +138,15 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
   font-weight: 400;
 }
 
+.bubble-chart .bubble-label__name {
+  font-weight: 700;
+}
+
+.bubble-chart .bubble-label__value {
+  font-weight: 400;
+  font-style: normal;
+}
+
 .bubble-chart .bubble-label-arc {
   fill: none;
   stroke: none;
@@ -175,7 +193,7 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
   min-width: 0; 
   text-align: right; 
   font-weight: 400;
-  font-style: italic;
+  font-style: normal;
 }
 
 .radial-presence-chart {

@@ -13,7 +13,7 @@ const rows = await FileAttachment("./data/data.csv").csv();
 # Visualizing temporal data from SONYC sensors
 ##
 
-## Description
+### Description
 
 From late 2016 to early 2020, [**Sounds of New York City (SONYC)**](https://wp.nyu.edu/sonyc/) used smart noise sensors to collect 30-second sound clips from across the Big Apple.
 
@@ -23,7 +23,7 @@ New York City is noisy. In 2026 alone, the city has received over [145000](https
 
 Read more about the motivation and creation of this dataset see the [DCASE 2020 Urban Sound Tagging with Spatiotemporal Context Task website](http://dcase.community/challenge2020/task-urban-sound-tagging-with-spatiotemporal-context).
 
-## Sounds
+### Sounds
 Researchers and volunteers tagged the presence of 23 sounds, chosen in consultation with the New York City Department of Environmental Protection (DEP). These 23 fine-grained sound categories were then grouped into eight coarse-grained classes.
 
 ```js
@@ -33,7 +33,7 @@ display(renderBubbleChart({data: sonycCharts.bubbleHierarchy, width}))
 
 Over the course of four years, the sensors mostly picked up the sounds of car engines, alerts, and human voices. Car horns comprised over half of all alert signals, and vehicles with large engines made half of all engine noises. In addition, non-machinery impacts—loud bursts, kocks or slaps that are hard to place under a single category—were identified in nearly 20% of sound clips.
 
-## Time of day
+### Time of day
 Below is an interactive chart showing occurences of different categories of sounds distributed over time.
 
 Click on a **legend item** or its corresponding **area chart** to reveal the total number of occurences, then hover over the entire area to see how many times that sound was picked up at a particular hour.

@@ -10,9 +10,9 @@ const transitionMs = 100;
 // Stacked rings no longer overlap, so a high baseline opacity keeps each
 // ring's color distinct instead of the washed-out look transparency needs
 // for overlapping areas.
-const defaultOpacity = 0.9;
+const defaultOpacity = 0.75;
 const areaStrokeWidth = 0.5;
-const areaStrokeWidthHover = 0;
+const ringStrokeWidth = 0.5;
 const lightFillLuminanceThreshold = 0.6;
 const chartMaxWidth = 640; // matches the theme's max text width so charts align with body copy
 
@@ -51,7 +51,7 @@ export const renderRadialPresenceChart = ({
   const chartWidth = Math.min(chartMaxWidth, Math.max(360, width));
   const chartHeight = chartWidth;
   const margin = 5;
-  const fixedInnerRadius = chartWidth / 6;
+  const fixedInnerRadius = chartWidth / 5.5;
   const fixedOuterRadius = chartWidth / 2 - margin;
 
   // Smallest-total-first ordering, reused both for the stack and the color
@@ -59,6 +59,15 @@ export const renderRadialPresenceChart = ({
   const ascendingCategories = [...sortedCategories].reverse();
   const stackCategories = stackOrder === "descending" ? sortedCategories : ascendingCategories;
   const colorScheme = createFlagshipColorScale(stackCategories);
+
+  // A ring's stroke borrows the color of the ring stacked just below/inside
+  // it, so the boundary reads as a continuation of that ring; the innermost
+  // ring has nothing below it, so it strokes with its own color.
+  const ringStrokeColorFor = (categoryKey) => {
+    const idx = stackCategories.indexOf(categoryKey);
+    const belowKey = idx > 0 ? stackCategories[idx - 1] : categoryKey;
+    return colorScheme(belowKey);
+  };
 
   const container = d3.create("figure")
     .attr("class", "radial-presence-chart")
@@ -82,7 +91,7 @@ export const renderRadialPresenceChart = ({
   const textColorForCategory = (cat) => {
     const base = d3.color(colorScheme(cat));
     if (!base) return "#111";
-    return luminanceOf(base) > lightFillLuminanceThreshold ? "#111" : "#f8f9fa";
+    return luminanceOf(base) > lightFillLuminanceThreshold ? "#111" : "#111";
   };
 
   const svg = container
@@ -161,7 +170,7 @@ export const renderRadialPresenceChart = ({
 
     if (currentLine.length > 0) lines.push(currentLine.join(" "));
 
-    const lineHeight = 18;
+    const lineHeight = 16;
     const totalLinesCount = lines.length + 1;
     // Offsets the starting Y baseline so the multi-line block remains perfectly centered
     const startY = -((totalLinesCount - 1) * lineHeight) / 2 + 4;
@@ -172,19 +181,18 @@ export const renderRadialPresenceChart = ({
         .attr("text-anchor", "middle")
         .attr("y", startY + index * lineHeight)
         .attr("fill", "var(--theme-foreground, #111)")
-        .style("font-size", "14px")
+        .style("font-size", "15px")
         .style("font-weight", "700")
-        .style("text-transform", "capitalize")
+        //.style("text-transform", "capitalize")
         .text(lineText);
     });
-
     centerTextGroup
       .append("text")
       .attr("text-anchor", "middle")
-      .attr("y", startY + lines.length * lineHeight + 6)
-      .attr("fill", accentColor)
+      .attr("y", startY + lines.length * lineHeight)
+      .attr("fill", "var(--theme-foreground, #111)")
       .style("font-size", "12px")
-      .style("font-weight", "normal")
+      .style("font-weight", "400")
       .text(`${formatCount(totalCount)}`);
   }
 
@@ -200,8 +208,8 @@ export const renderRadialPresenceChart = ({
       .interrupt()
       .transition()
       .duration(transitionMs)
-      .attr("opacity", (s) => (s.key === categoryKey ? defaultOpacity * 2 : defaultOpacity * 0.5))
-      .attr("stroke-width", (s) => (s.key === categoryKey ? areaStrokeWidthHover : 0));
+      .attr("opacity", (s) => (s.key === categoryKey ? 1 : defaultOpacity * 0.35))
+      .attr("stroke-width", ringStrokeWidth);
 
     legend
       .selectAll(".radial-presence-chart__legend-item")
@@ -222,7 +230,7 @@ export const renderRadialPresenceChart = ({
       .transition()
       .duration(transitionMs)
       .attr("opacity", defaultOpacity)
-      .attr("stroke-width", 0);
+      .attr("stroke-width", ringStrokeWidth);
 
     legend
       .selectAll(".radial-presence-chart__legend-item")
@@ -245,7 +253,7 @@ export const renderRadialPresenceChart = ({
       .transition()
       .duration(transitionMs)
       .attr("opacity", defaultOpacity)
-      .attr("stroke-width", 0);
+      .attr("stroke-width", ringStrokeWidth);
 
     legend
       .selectAll(".radial-presence-chart__legend-item")
@@ -316,8 +324,8 @@ export const renderRadialPresenceChart = ({
     .join("path")
     .attr("class", "area-path")
     .attr("fill", (s) => colorScheme(s.key))
-    .attr("stroke", (s) => strokeForCategory(s.key))
-    .attr("stroke-width", 0)
+    .attr("stroke", (s) => ringStrokeColorFor(s.key))
+    .attr("stroke-width", ringStrokeWidth)
     .attr("opacity", defaultOpacity)
     .attr("d", area)
     .on("click", (event, s) => {

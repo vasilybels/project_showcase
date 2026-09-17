@@ -39,6 +39,8 @@ export const renderBubbleChart = ({
   const chartHeight = Math.max(420, chartWidth);
   const palette = createFlagshipColorScale(SONYC_COARSE_CATEGORIES);
   const formatCount = d3.format(",d");
+  const totalRows = Number(data.totalRows) || 0;
+  const formatSharePercent = (count) => (totalRows > 0 ? `${((count / totalRows) * 100).toFixed(1)}%` : null);
 
   const root = d3.hierarchy(data)
     .sum((d) => d.value ?? 0)
@@ -118,6 +120,16 @@ export const renderBubbleChart = ({
     return d.r >= 14 && estWidth <= d.r * 1.7;
   };
 
+  // The percentage line needs extra vertical room, so it only shows once a
+  // leaf bubble already qualifies for its name label.
+  const percentFontSize = (d) => Math.max(7, labelFontSize(d) * 0.78);
+  const shouldShowPercentage = (d) => {
+    if (!shouldLabel(d) || totalRows <= 0) return false;
+    const text = formatSharePercent(d.value ?? 0) ?? "";
+    const estWidth = text.length * percentFontSize(d) * 0.6;
+    return d.r >= 22 && estWidth <= d.r * 1.7;
+  };
+
   // Tune these module-level caps to control coarse curved label size.
   const groupLabelFontSize = (d) => Math.max(minGroupLabelFontSize, Math.min(maxGroupLabelFontSize, d.r / 8));
   const groupLabelInsetPx = (d) => (d.data?.name === "Powered saw" || d.data?.name === "Machinery") ? -6 : Math.max(minGroupLabelInsetPx, groupLabelFontSize(d) * groupLabelInsetMultiplier);
@@ -187,12 +199,26 @@ export const renderBubbleChart = ({
       hideTooltip();
     });
 
-  layers.append("text")
+  const labels = layers.append("text")
     .attr("class", "bubble-label")
     .style("display", (d) => shouldLabel(d) ? null : "none")
+    .attr("fill", (d) => labelFillFor(d));
+
+  labels.append("tspan")
+    .attr("class", "bubble-label__name")
+    .attr("x", 0)
+    .attr("dy", (d) => shouldShowPercentage(d) ? "-0.25em" : 0)
     .style("font-size", (d) => `${labelFontSize(d)}px`)
-    .attr("fill", (d) => labelFillFor(d))
     .text((d) => cleanName(d.data?.name ?? ""));
+
+  labels
+    .filter(shouldShowPercentage)
+    .append("tspan")
+    .attr("class", "bubble-label__value")
+    .attr("x", 0)
+    .attr("dy", "1.3em")
+    .style("font-size", (d) => `${percentFontSize(d)}px`)
+    .text((d) => formatSharePercent(d.value ?? 0));
 
   svg.append("g")
     .selectAll("text")
@@ -219,11 +245,14 @@ export const renderBubbleChart = ({
     const countText = formatCount(count);
     const category = cleanName(catName).toLowerCase();
     const row = (label, value) => `<div class="tooltip-row"><span class="tooltip-label">${label}</span><strong class="tooltip-value">${value}</strong></div>`;
+    // Only leaf categories (not coarse groups) get a share-of-recordings figure.
+    const sharePercent = !isGroup(node) ? formatSharePercent(count) : null;
+    const shareRow = sharePercent ? row("Share of recordings", sharePercent) : "";
 
     if (catName === "Sounds") {
-      return `${row("Sound type", soundType)}${row("Count", countText)}`;
+      return `${row("Sound", soundType)}${row("Count", countText)}${shareRow}`;
     }
-    return `${row("Sound type", soundType)}${row("Count", countText)}${row("Category", category)}`;
+    return `${row("Sound", soundType)}${row("Count", countText)}${shareRow}`;
   }
 
   function showTooltip(event, node) {
@@ -251,18 +280,10 @@ export const renderBubbleChart = ({
       .attr("stroke-width", (d) => {
         if (d.depth === 0 || !isGroup(d)) return 0; // leaf circles never gain a stroke on hover
         return nodeId(d) === targetId ? strokeWidthFor(d) + 1 : strokeWidthFor(d);
-      })
-      .attr("fill", (d) => {
-        if (d.depth === 0) return "rgba(0,0,0,0)";
-        if (isGroup(d)) return fillFor(d); // keep the category wash constant; only its opacity (below) responds to hover
-        if (targetIsGroup) {
-          const inGroup = d.parent && nodeId(d.parent) === targetId;
-          const base = d3.color(palette(topAncestorCategory(d)));
-          return base ? base.copy({opacity: inGroup ? defaultOpacity : defaultOpacity * 0.16}).toString() : "#f8f9fa";
-        }
-        return fillFor(d);
       });
 
+    // The shared circle+label group opacity below is the only fade effect,
+    // so coarse and fine hovers dim everything else identically.
     svg.selectAll(".hierarchy-node")
       .interrupt()
       .transition()
