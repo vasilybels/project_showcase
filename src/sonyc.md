@@ -1,16 +1,16 @@
 ---
 toc: true
-title: "Visualizing temporal data from SONYC sensors"
+title: "Turning SONYC data into temporal charts."
 ---
 
 ```js
-import { buildSonicChartData } from "./sonycData.js";
+import { buildSonicChartData, filterUniversalTruthRows } from "./sonycData.js";
 import { renderBubbleChart } from "./components/chart1.js";
 const rows = await FileAttachment("./data/data.csv").csv();
 ```
 
 
-# Visualizing temporal data from SONYC sensors
+# Turning SONYC data into temporal charts.
 ##
 
 ### Description
@@ -54,7 +54,13 @@ display({
 	universalTruthRows: sonycCharts.universalRows.length,
 	topCategoryTotals
 });
+
 ``` -->
+```js
+
+display(Inputs.table(sonycCharts.universalRows.slice(0, 10), {width: 650}))
+
+```
 
 ```js
 import { renderRadialPresenceChart } from "./components/chart2.js";
