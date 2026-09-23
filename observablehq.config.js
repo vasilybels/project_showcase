@@ -19,10 +19,6 @@ export default {
   // Site-wide stylesheet (must @import observablehq:default.css to keep the theme).
   style: "custom-style.css",
 
-  globalStylesheets: [
-    "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap"
-  ],
-
   // The path to the source root.
   root: "src",
   // header: "", // what to show in the header (HTML)

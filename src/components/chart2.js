@@ -70,8 +70,7 @@ export const renderRadialPresenceChart = ({
   };
 
   const container = d3.create("figure")
-    .attr("class", "radial-presence-chart")
-    .style("--radial-chart-max-width", `${chartWidth}px`);
+    .attr("class", "radial-presence-chart");
 
   const header = container.append("header").attr("class", "chart-header");
   header.append("h3").text(heading);
@@ -216,7 +215,7 @@ export const renderRadialPresenceChart = ({
       .interrupt()
       .transition()
       .duration(transitionMs)
-      .style("background", (cat) => (cat === categoryKey ? "rgba(127,127,127,0.14)" : "transparent"))
+      .style("background", (cat) => (cat === categoryKey ? d3.color(strokeForCategory(cat)).copy({opacity: 0.1}) : "transparent"))
       .style("border-color", (cat) => (cat === categoryKey ? strokeForCategory(cat) : "transparent"))
       .style("opacity", (cat) => (cat === categoryKey ? 1 : 0.5));
   }

@@ -167,6 +167,35 @@ export function buildSonicChartData(rows) {
   return {
     universalRows,
     bubbleHierarchy: buildBubbleHierarchy(universalRows),
-    radialPresence: buildRadialPresenceData(universalRows)
+    radialPresence: buildRadialPresenceData(universalRows),
+    dayHourPresence: buildDayHourPresence(universalRows, "5-1_car-horn_presence")
+  };
+}
+
+export const SONYC_DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+// Counts how often a single fine- or coarse-grained category was tagged present,
+// broken out by day of week (0=Monday..6=Sunday) and hour of day (0-23).
+export function buildDayHourPresence(rows, categoryKey) {
+  const counts = Array.from({length: 7}, () => new Array(24).fill(0));
+
+  for (const row of rows) {
+    const day = +row.day;
+    const hour = +row.hour;
+    if (!Number.isInteger(day) || day < 0 || day > 6) continue;
+    if (!Number.isInteger(hour) || hour < 0 || hour > 23) continue;
+    if (isPresent(row[categoryKey])) counts[day][hour] += 1;
+  }
+
+  const maxCount = Math.max(1, ...counts.flat());
+  const sum = (values) => values.reduce((acc, row) => acc + row.reduce((a, b) => a + b, 0), 0);
+
+  return {
+    counts,
+    maxCount,
+    categoryKey,
+    dayNames: SONYC_DAY_NAMES,
+    weekdayTotal: sum(counts.slice(0, 5)),
+    weekendTotal: sum(counts.slice(5))
   };
 }

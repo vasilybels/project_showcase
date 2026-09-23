@@ -1,17 +1,7 @@
 @import url("observablehq:default.css");
 
 :root {
-    
-    --theme-foreground: #1B0A08;
-    --theme-background: #FFFFFF;
-    --theme-background-alt: #FAFAFA;
-    --theme-foreground-alt: #245DB2; /* heading color */
-    --theme-foreground-muted: #808080;
-    --theme-foreground-faint: #DADADA;
-    --theme-foreground-fainter: #F5F5F5;
-    --theme-foreground-faintest: #FAFAFA;
-    --theme-foreground-focus: #245DB2;
-    
+    /* Chart-only design tokens; page theme colors are Framework's defaults. */
     --chart-opacity-default: 0.75;
     --chart-group-fill-opacity: 0.08;
     --chart-stroke-thin: 1;
@@ -19,63 +9,13 @@
     --chart-label-font-sm: 12px;
     --chart-label-font-md: 14px;
     --chart-label-font-lg: 16px;
+    --chart-heading-color: #245db2;
 
     /* Standardized gap between any heading and the text that follows it. */
     --heading-copy-gap: 10px;
-
-    background-color: var(--theme-background);
-   
 }
 
-h1, h2 {
-    font-family: "Old Standard TT", serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-    margin-bottom: var(--heading-copy-gap);
-}
-
-h3, h4, h5, h6 {
-    font-family: "DM Sans", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-    margin-bottom: var(--heading-copy-gap); 
-}
-
-
-h1 {
-    font-size: 52px;
-    color: var(--theme-foreground-alt);
-}
-
-h2 {
-    font-size: 32px;
-    color: var(--theme-foreground);
-}
-
-h3 {
-    font-size: 24px;
-    color: var(--theme-foreground);
-}
-
-body {
-    font-size: 12px;
-    font-family: "DM Sans", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-    color: var(--theme-foreground);
-}
-
-p a {
-    text-decoration: none;
-    font-weight: 700;
-    color: #BD4639!important;
-}
-
-svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip {
-    font-family: "DM Sans", sans-serif;
+svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip, .day-hour-heatmap__tooltip {
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
@@ -89,35 +29,28 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
 
 .chart-header h3 {
     margin: 0 0 var(--heading-copy-gap);
-    max-width: none;
+    color: var(--chart-heading-color);
 }
 
 .chart-header p {
     margin: 0px;
-    max-width: none;
     line-height: 1.2;
 }
 
 /* Shared chart footnote: keeps source and measurement notes below the content. */
 .chart-footnote {
   margin: 10px 0px;
-  max-width: none;
   color: var(--theme-foreground-muted);
-  font-family: "DM Sans", sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.2;
 }
 
-/* Bubble chart: wrapper, responsive SVG, pointer behavior, and label geometry.
-   max-width matches the theme's 640px text width and the radial chart below,
-   with a margin that keeps the chart visibly separated from surrounding copy. */
+/* Bubble chart: wrapper, responsive SVG, and pointer behavior.
+   Width/max-width come from Framework's default figure styling. */
 .bubble-chart {
-  margin: 24px 0;
-  max-width: 640px;
   width: 100%;
   position: relative;
   color: var(--theme-foreground);
-
 }
 
 .bubble-chart__svg {
@@ -152,7 +85,7 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
   stroke: none;
 }
 
-.bubble-chart__tooltip, .radial-presence-chart__tooltip { 
+.bubble-chart__tooltip, .radial-presence-chart__tooltip, .day-hour-heatmap__tooltip { 
   position: absolute; 
   top: 0; 
   left: 0; 
@@ -170,26 +103,21 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
   z-index: 10; 
   opacity: 0; 
   transition: opacity 150ms ease;
-  font-family: "DM Sans", sans-serif;
 }
 
-.radial-presence-chart {
-  position: relative;
-}
-
-.bubble-chart__tooltip .tooltip-row, .radial-presence-chart__tooltip .tooltip-row { 
+.bubble-chart__tooltip .tooltip-row, .radial-presence-chart__tooltip .tooltip-row, .day-hour-heatmap__tooltip .tooltip-row { 
   display: grid; 
   grid-template-columns: max-content minmax(0, 1fr); 
   column-gap: 2rem; 
   align-items: baseline; 
 } 
 
-.bubble-chart__tooltip .tooltip-label, .radial-presence-chart__tooltip .tooltip-label { 
+.bubble-chart__tooltip .tooltip-label, .radial-presence-chart__tooltip .tooltip-label, .day-hour-heatmap__tooltip .tooltip-label { 
   text-align: left; 
   font-weight: 700;
 }
 
-.bubble-chart__tooltip .tooltip-value, .radial-presence-chart__tooltip .tooltip-value { 
+.bubble-chart__tooltip .tooltip-value, .radial-presence-chart__tooltip .tooltip-value, .day-hour-heatmap__tooltip .tooltip-value { 
   min-width: 0; 
   text-align: right; 
   font-weight: 400;
@@ -197,11 +125,8 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
 }
 
 .radial-presence-chart {
-
-  max-width: var(--radial-chart-max-width);
   height: auto;
   width: 100%;
-  margin: 24px 0;
   position: relative;
 }
 
@@ -216,9 +141,9 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 5px;
-  border: 0px transparent;
-  border-radius: 0px;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 12px;
   transition: ease;
@@ -237,30 +162,30 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
   font-size: 12px;
 }
 
-
-
-
-.dm-sans-regular {
-  font-family: "DM Sans", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
+/* Day-hour heatmap: wrapper and responsive SVG. */
+.day-hour-heatmap {
+  width: 100%;
+  position: relative;
+  color: var(--theme-foreground);
 }
 
-.old-standard-tt-regular {
-  font-family: "Old Standard TT", serif;
-  font-weight: 400;
-  font-style: normal;
+.day-hour-heatmap__svg {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
-.old-standard-tt-bold {
-  font-family: "Old Standard TT", serif;
-  font-weight: 700;
-  font-style: normal;
+.day-hour-heatmap__cell {
+  cursor: pointer;
 }
 
-.old-standard-tt-regular-italic {
-  font-family: "Old Standard TT", serif;
-  font-weight: 400;
-  font-style: italic;
+.day-hour-heatmap__day-label,
+.day-hour-heatmap__hour-label {
+  fill: var(--theme-foreground-muted);
+  font-size: 11px;
+}
+
+.day-hour-heatmap__legend-label {
+  fill: var(--theme-foreground-muted);
+  font-size: 11px;
 }

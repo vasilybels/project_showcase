@@ -247,7 +247,7 @@ export const renderBubbleChart = ({
     const row = (label, value) => `<div class="tooltip-row"><span class="tooltip-label">${label}</span><strong class="tooltip-value">${value}</strong></div>`;
     // Only leaf categories (not coarse groups) get a share-of-recordings figure.
     const sharePercent = !isGroup(node) ? formatSharePercent(count) : null;
-    const shareRow = sharePercent ? row("Share of recordings", sharePercent) : "";
+    const shareRow = sharePercent ? row("% of clips", sharePercent) : "";
 
     if (catName === "Sounds") {
       return `${row("Sound", soundType)}${row("Count", countText)}${shareRow}`;
