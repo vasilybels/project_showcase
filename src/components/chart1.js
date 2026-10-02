@@ -1,16 +1,20 @@
 import * as d3 from "npm:d3";
-import {SONYC_COARSE_CATEGORIES, SONYC_COARSE_KEY_BY_NAME} from "../sonycData.js";
-import {createFlagshipColorScale} from "./colorScale.js";
+import {SONYC_COARSE_KEY_BY_NAME} from "../sonycData.js";
+import {explorerColorScale} from "./explorerColorScale.js";
+import {
+  transitionMs,
+  defaultOpacity,
+  hoverDimRatio,
+  chartMaxWidth,
+  chartMinWidth,
+  lightFillLuminanceThreshold
+} from "./explorerConfig.js";
 
-const transitionMs = 100;
-const defaultOpacity = 0.75;
-const chartMaxWidth = 640; // matches the theme's max text width so charts align with body copy
 const groupFillOpacity = 0.08; // soft category wash behind each coarse group, for Gestalt grouping
 const leafStrokeWidth = 0;
 const groupStrokeWidth = 0;
 const leafStrokeDarken = 0.5;
 const groupStrokeDarken = 0.5;
-const lightFillLuminanceThreshold = 0.6; // above this, switch label text to dark for contrast
 const minGroupLabelFontSize = 9;
 const maxGroupLabelFontSize = 15;
 const groupLabelInsetMultiplier = 0.7;
@@ -35,9 +39,8 @@ export const renderBubbleChart = ({
     throw new Error("This chart requires a hierarchical data object.");
   }
 
-  const chartWidth = Math.min(chartMaxWidth, Math.max(320, width));
+  const chartWidth = Math.min(chartMaxWidth, Math.max(chartMinWidth, width));
   const chartHeight = Math.max(420, chartWidth);
-  const palette = createFlagshipColorScale(SONYC_COARSE_CATEGORIES);
   const formatCount = d3.format(",d");
   const totalRows = Number(data.totalRows) || 0;
   const formatSharePercent = (count) => (totalRows > 0 ? `${((count / totalRows) * 100).toFixed(1)}%` : null);
@@ -77,7 +80,7 @@ export const renderBubbleChart = ({
   // Groups get a faint wash of their own hue (context); leaves get the full-strength fill (content).
   const fillFor = (node) => {
     if (node.depth === 0) return "rgba(0,0,0,0)";
-    const base = d3.color(palette(topAncestorCategory(node)));
+    const base = d3.color(explorerColorScale(topAncestorCategory(node)));
     if (!base) return "#f8f9fa";
     return base.copy({opacity: isGroup(node) ? groupFillOpacity : defaultOpacity}).toString();
   };
@@ -85,7 +88,7 @@ export const renderBubbleChart = ({
   // Every circle gets a same-hue stroke so touching same-category bubbles stay visually separated.
   const strokeFor = (node) => {
     if (node.depth === 0) return "rgba(0,0,0,0)";
-    const base = d3.color(palette(topAncestorCategory(node)));
+    const base = d3.color(explorerColorScale(topAncestorCategory(node)));
     if (!base) return "rgba(0,0,0,0.3)";
     return isGroup(node) ? base.darker(groupStrokeDarken).toString() : base.darker(leafStrokeDarken).toString();
   };
@@ -107,7 +110,7 @@ export const renderBubbleChart = ({
   // Curved group labels take on their own category hue (darkened if needed for contrast)
   // so the label color directly reinforces which region it names.
   const groupLabelColorFor = (d) => {
-    const base = d3.color(palette(topAncestorCategory(d)));
+    const base = d3.color(explorerColorScale(topAncestorCategory(d)));
     if (!base) return "var(--theme-foreground)";
     return luminanceOf(base) > lightFillLuminanceThreshold ? base.darker(1.6).toString() : base.toString();
   };
@@ -187,7 +190,7 @@ export const renderBubbleChart = ({
     .attr("stroke-width", (d) => strokeWidthFor(d))
     .on("mouseenter", (event, d) => {
       if (d.depth === 0) return;
-      hover(d);
+      if (!pinnedCategory) applyHighlight(topAncestorCategory(d));
       showTooltip(event, d);
     })
     .on("mousemove", (event, d) => {
@@ -195,8 +198,12 @@ export const renderBubbleChart = ({
       showTooltip(event, d);
     })
     .on("mouseleave", () => {
-      resetHover();
+      if (!pinnedCategory) clearHighlightVisual();
       hideTooltip();
+    })
+    .on("click", (event, d) => {
+      if (d.depth === 0) return;
+      container.dispatch("explorer:categoryClick", {detail: topAncestorCategory(d), bubbles: true});
     });
 
   const labels = layers.append("text")
@@ -258,7 +265,7 @@ export const renderBubbleChart = ({
   function showTooltip(event, node) {
     const [x, y] = d3.pointer(event, container.node());
     const count = node.value ?? node.data?.value ?? 0;
-    const swatchColor = d3.color(palette(topAncestorCategory(node)))?.formatHex() ?? "#999";
+    const swatchColor = d3.color(explorerColorScale(topAncestorCategory(node)))?.formatHex() ?? "#999";
     tooltip
       .style("transform", `translate(${x + 14}px, ${y + 14}px)`)
       .style("opacity", 1)
@@ -269,38 +276,36 @@ export const renderBubbleChart = ({
     tooltip.style("opacity", 0);
   }
 
-  function hover(targetNode) {
-    const targetId = nodeId(targetNode);
-    const targetIsGroup = isGroup(targetNode);
+  // Pinned by a click (locally, or arriving from the radial chart via the
+  // explorer's shared selection store). While pinned, hover no longer
+  // drives the highlight — the pin wins until it's cleared.
+  let pinnedCategory = null;
 
+  // Category-keyed rather than node-id-keyed: this is what lets a
+  // selection made in the *other* chart highlight the matching bubbles
+  // here, since both charts now key off the same category identity
+  // instead of a chart-local node id.
+  function applyHighlight(categoryKey) {
     svg.selectAll(".hierarchy-circle")
       .interrupt()
       .transition()
       .duration(transitionMs)
       .attr("stroke-width", (d) => {
-        if (d.depth === 0 || !isGroup(d)) return 0; // leaf circles never gain a stroke on hover
-        return nodeId(d) === targetId ? strokeWidthFor(d) + 1 : strokeWidthFor(d);
+        if (d.depth === 0 || !isGroup(d)) return 0;
+        return topAncestorCategory(d) === categoryKey ? strokeWidthFor(d) + 1 : strokeWidthFor(d);
       });
 
-    // The shared circle+label group opacity below is the only fade effect,
-    // so coarse and fine hovers dim everything else identically.
     svg.selectAll(".hierarchy-node")
       .interrupt()
       .transition()
       .duration(transitionMs)
       .attr("opacity", (d) => {
         if (d.depth === 0) return 1;
-        const id = nodeId(d);
-        if (targetIsGroup) {
-          return id === targetId || (d.parent && nodeId(d.parent) === targetId) ? 1 : defaultOpacity * 0.2;
-        }
-        // Keep the hovered leaf's own group visible for context (breadcrumb of category).
-        const isTargetsParent = isGroup(d) && targetNode.parent && nodeId(targetNode.parent) === id;
-        return id === targetId || isTargetsParent ? 1 : defaultOpacity * 0.2;
+        return topAncestorCategory(d) === categoryKey ? 1 : defaultOpacity * hoverDimRatio;
       });
   }
 
-  function resetHover() {
+  function clearHighlightVisual() {
     svg.selectAll(".hierarchy-circle")
       .interrupt()
       .transition()
@@ -314,6 +319,14 @@ export const renderBubbleChart = ({
       .duration(transitionMs)
       .attr("opacity", 1);
   }
+
+  // Selection arriving from the explorer — a click in this chart, echoed
+  // back through the shared store, or a click in the radial chart.
+  container.on("explorer:select", (event) => {
+    pinnedCategory = event.detail;
+    if (pinnedCategory) applyHighlight(pinnedCategory);
+    else clearHighlightVisual();
+  });
 
   if (footnote) {
     container

@@ -4,19 +4,17 @@ import {
   filterUniversalTruthRows,
   SONYC_COARSE_LABELS
 } from "../sonycData.js";
-import {createFlagshipColorScale} from "./colorScale.js";
+import {explorerColorScale} from "./explorerColorScale.js";
+import {
+  transitionMs,
+  defaultOpacity,
+  chartMaxWidth,
+  chartMinWidth,
+  lightFillLuminanceThreshold
+} from "./explorerConfig.js";
 
-const transitionMs = 100;
-// Stacked rings no longer overlap, so a high baseline opacity keeps each
-// ring's color distinct instead of the washed-out look transparency needs
-// for overlapping areas.
-const defaultOpacity = 0.75;
 const areaStrokeWidth = 0.5;
 const ringStrokeWidth = 0.5;
-const lightFillLuminanceThreshold = 0.6;
-const chartMaxWidth = 640; // matches the theme's max text width so charts align with body copy
-
-let selectedCategory = null;
 
 // MD USAGE:
 // ```js
@@ -36,6 +34,12 @@ export const renderRadialPresenceChart = ({
   // innermost/bottom and the largest outermost/top; "descending" reverses it.
   stackOrder = "ascending"
 } = {}) => {
+  // Scoped to this call, not the module — the old module-level `let` meant
+  // a second chart instance (or this same chart rendered twice) shared one
+  // selection, which breaks as soon as an explorer view puts two charts
+  // on a page.
+  let selectedCategory = null;
+
   let radialData;
   if (Array.isArray(data)) {
     radialData = buildRadialPresenceData(filterUniversalTruthRows(data));
@@ -48,7 +52,7 @@ export const renderRadialPresenceChart = ({
   const {processedData, sortedCategories, labelsByCategory = SONYC_COARSE_LABELS} = radialData;
   const displayCategoryName = (name) => String(name ?? "");
 
-  const chartWidth = Math.min(chartMaxWidth, Math.max(360, width));
+  const chartWidth = Math.min(chartMaxWidth, Math.max(chartMinWidth, width));
   const chartHeight = chartWidth;
   const margin = 5;
   const fixedInnerRadius = chartWidth / 5.5;
@@ -58,7 +62,11 @@ export const renderRadialPresenceChart = ({
   // progression so the rings read as a smooth gradient from center to edge.
   const ascendingCategories = [...sortedCategories].reverse();
   const stackCategories = stackOrder === "descending" ? sortedCategories : ascendingCategories;
-  const colorScheme = createFlagshipColorScale(stackCategories);
+  // Fixed-domain shared scale, not built from stackCategories: a category's
+  // color no longer depends on stack order or on which chart is rendering
+  // it. stackCategories still controls ring stacking order below — that's
+  // a layout concern, separate from color identity now.
+  const colorScheme = explorerColorScale;
 
   // A ring's stroke borrows the color of the ring stacked just below/inside
   // it, so the boundary reads as a continuation of that ring; the innermost
@@ -85,12 +93,6 @@ export const renderRadialPresenceChart = ({
   const strokeForCategory = (cat) => {
     const base = d3.color(colorScheme(cat));
     return base ? base.darker(0.45).toString() : "rgba(0,0,0,0.35)";
-  };
-
-  const textColorForCategory = (cat) => {
-    const base = d3.color(colorScheme(cat));
-    if (!base) return "#111";
-    return luminanceOf(base) > lightFillLuminanceThreshold ? "#111" : "#111";
   };
 
   const svg = container
@@ -200,7 +202,7 @@ export const renderRadialPresenceChart = ({
   function handleHover(categoryKey, labelText, valueTotal) {
     wrapCenterText(labelText, valueTotal, categoryKey);
 
-    centerTextGroup.interrupt().transition().duration(transitionMs).attr("opacity", 0.8);
+    // centerTextGroup.interrupt().transition().duration(transitionMs).attr("opacity", 0.8);
 
     areaGroup
       .selectAll(".area-path")
@@ -244,7 +246,7 @@ export const renderRadialPresenceChart = ({
   function handleMouseLeave() {
     if (selectedCategory) return;
 
-    centerTextGroup.interrupt().transition().duration(transitionMs).attr("opacity", 0);
+    // centerTextGroup.interrupt().transition().duration(transitionMs).attr("opacity", 0);
 
     areaGroup
       .selectAll(".area-path")
@@ -264,8 +266,18 @@ export const renderRadialPresenceChart = ({
       .style("opacity", 1);
   }
 
+  // Click no longer mutates selectedCategory directly — it asks the
+  // explorer to change the shared selection, which echoes back to
+  // applyExternalSelection() below (and to the bubble chart, too). That
+  // keeps one source of truth instead of two charts each tracking their
+  // own pin.
   function toggleCategory(categoryKey) {
-    selectedCategory = selectedCategory === categoryKey ? null : categoryKey;
+    const next = selectedCategory === categoryKey ? null : categoryKey;
+    container.dispatch("explorer:categoryClick", {detail: next, bubbles: true});
+  }
+
+  function applyExternalSelection(categoryKey) {
+    selectedCategory = categoryKey;
 
     if (!selectedCategory) {
       clearHover();
@@ -277,6 +289,8 @@ export const renderRadialPresenceChart = ({
     const selectedTotal = d3.sum(processedData, (row) => row[selectedCategory] ?? 0);
     handleHover(selectedCategory, selectedName, selectedTotal);
   }
+
+  container.on("explorer:select", (event) => applyExternalSelection(event.detail));
 
   const legendItems = legend
     .selectAll(".radial-presence-chart__legend-item")

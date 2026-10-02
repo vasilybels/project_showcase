@@ -1,8 +1,8 @@
 import * as d3 from "npm:d3";
 import {createFlagshipSequentialScale} from "./colorScale.js";
 
-const chartMaxWidth = 640; // matches the theme's max text width so charts align with body copy
-const marginLeft = 64;
+const chartMaxWidth = 640;
+const marginLeft = 0;
 const marginTop = 6;
 const marginBottom = 28;
 const legendHeight = 34;
@@ -20,7 +20,7 @@ export const renderDayHourHeatmap = ({
   data,
   width = 640,
   categoryLabel = "sound",
-  heading = "A Weekday Habit",
+  heading = " ",
   subheading = `How often ${categoryLabel} was recorded, by day of week and hour.`,
   footnote = "Source: Sounds of New York City Urban Sound Tagging (SONYC-UST) dataset, version 2.4."
 } = {}) => {

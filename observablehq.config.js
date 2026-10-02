@@ -20,6 +20,7 @@ export default {
   style: "custom-style.css",
 
   // The path to the source root.
+  theme: "default",
   root: "src",
   // header: "", // what to show in the header (HTML)
   sidebar: true, // whether to show the sidebar

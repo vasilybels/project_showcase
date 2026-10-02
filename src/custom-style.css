@@ -92,7 +92,7 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
   transform: translate(-9999px, -9999px); 
   pointer-events: none; 
 
-  background: var(--theme-background); 
+  background: #fff; 
   color: var(--theme-foreground);
   border: 0.75px solid var(--theme-foreground); 
   border-radius: 0px;
@@ -188,4 +188,16 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
 .day-hour-heatmap__legend-label {
   fill: var(--theme-foreground-muted);
   font-size: 11px;
+}
+
+.sound-explorer__row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap; /* so it stacks on narrow viewports instead of squeezing */
+}
+.sound-explorer__bubble,
+.sound-explorer__radial {
+  flex: 1 1 320px;
+  min-width: 0;
 }

@@ -5,10 +5,8 @@ title: "What Sound Sensors Say About NYC's Noise"
 
 ```js
 import { buildSonicChartData, SONYC_DAY_NAMES } from "./sonycData.js";
-import { renderBubbleChart } from "./components/chart1.js";
-import { renderRadialPresenceChart } from "./components/chart2.js";
-import { renderDayHourHeatmap } from "./components/chart3.js";
-const rows = await FileAttachment("./data/data.csv").csv();
+import {renderExplorer} from "./components/explorer.js";
+const rows = await FileAttachment("data/data.csv").csv();
 const sonycCharts = buildSonicChartData(rows);
 ```
 
@@ -27,7 +25,7 @@ One caveat worth keeping in mind while reading these charts: the sensor network 
 Annotators tagged the presence of 23 fine-grained sound classes, grouped into 8 coarse categories: engines, machinery impacts, non-machinery impacts, powered saws, alert signals, music, human voices, and dogs. The bubble chart below sizes each sound by how often it was tagged present across the verified recordings.
 
 ```js
-display(renderBubbleChart({data: sonycCharts.bubbleHierarchy, width}));
+display(renderExplorer({rawRows: rows, width}));
 ```
 
 Cars dominate. Engine noise and alert signals — mostly horns — together account for a large share of every recording, and human voices show up almost as often. Non-machinery impacts (a category for loud bangs, knocks, and slaps that don't fit any single machine) turn up in nearly one in five clips, more than construction-related sounds like jackhammers or saws.
@@ -40,42 +38,11 @@ The radial chart below stacks the same eight categories by hour of day, so you c
 
 Click a **legend item**, or the ring itself, to isolate one category and see its hourly total in the center of the chart. Hover anywhere on an isolated ring to see the exact count for that hour. Click again to return to the full view.
 
-```js
-display(renderRadialPresenceChart({data: sonycCharts.radialPresence, width}));
-```
-
 The city's rhythm shows up clearly: human voices and engine noise build through the morning, stay high across the working day, and taper off after the evening commute. Sirens follow a similar but noisier pattern, with a visible peak in the early-to-late afternoon — consistent with peak traffic hours rather than, say, late-night emergencies.
-
-## A closer look at the data
-
-Each row below is one verified recording: where its sensor sits, when it was recorded, and whether a few common sounds were tagged present.
-
-```js
-const boroughNames = {"1": "Manhattan", "3": "Brooklyn", "4": "Queens"};
-const yesNo = (value) => (value === "1" ? "Yes" : "No");
-
-const sampleRows = sonycCharts.universalRows.slice(0, 10).map((row) => ({
-  sensor: row.sensor_id,
-  borough: boroughNames[row.borough] ?? row.borough,
-  day: SONYC_DAY_NAMES[+row.day] ?? row.day,
-  hour: +row.hour,
-  year: row.year,
-  "car horn": yesNo(row["5-1_car-horn_presence"]),
-  siren: yesNo(row["5-3_siren_presence"]),
-  "human voice": yesNo(row["7_human-voice_presence"]),
-  dog: yesNo(row["8_dog_presence"])
-}));
-
-display(Inputs.table(sampleRows));
-```
 
 ## A weekday habit
 
 The radial chart above only shows the hour of day, collapsing all seven days together. Car horns, the single most common alert signal in this dataset, tell a different story once you split by day of week too: **106 of the 157 verified car-horn recordings — about two in three — happened Monday through Friday**, clustering around the morning and evening commute. The heatmap below plots that same count across every combination of day and hour, so the weekday commute pattern is visible directly, the way a GitHub contribution graph shows a coder's weekly rhythm.
-
-```js
-display(renderDayHourHeatmap({data: sonycCharts.dayHourPresence, width, categoryLabel: "a car horn"}));
-```
 
 ## Sources and methodology
 
