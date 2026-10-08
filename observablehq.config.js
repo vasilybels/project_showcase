@@ -1,7 +1,7 @@
 // See https://observablehq.com/framework/config for documentation.
 export default {
   // The app’s title; used in the sidebar and webpage titles.
-  title: "Vasily's Projects",
+  title: "All dashboards",
 
   // The pages and sections in the sidebar. If you don’t specify this option,
   // all pages will be listed in alphabetical order. Listing pages explicitly
@@ -20,15 +20,15 @@ export default {
   style: "custom-style.css",
 
   globalStylesheets: [
-    "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap"
+    "https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Text:ital@0;1&display=swap"
   ],
 
   // The path to the source root.
   root: "src",
   // header: "", // what to show in the header (HTML)
-  sidebar: true, // whether to show the sidebar
-  // toc: true, // whether to show the table of contents
-  pager: false, // whether to show previous & next links in the footer
+  sidebar: false, // whether to show the sidebar
+  toc: false, // whether to show the table of contents
+  pager: true, // whether to show previous & next links in the footer
   // output: "dist", // path to the output root for build
   search: false, // activate search
   linkify: true, // convert URLs in Markdown to links
@@ -38,15 +38,13 @@ export default {
   footer: () => {
     return `
       <div class="footer">
-        <span>Vasily Belousov</span>
         <a href="https://www.linkedin.com/in/vasilybelousov" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         <a href="https://github.com/vasilybels" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a href="https://www.are.na/vasily-belousov/channels" target="_blank" rel="noopener noreferrer">Are.na</a>
       </div>
     `;
   }
 ,
   pages: [
-    {name: "NYC Sound Pollution Analysis", path: "/sonyc"}, 
+    {name: "SONYC visualizations", path: "/sonyc"}, 
   ]
 };

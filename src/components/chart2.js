@@ -4,7 +4,7 @@ import {
   filterUniversalTruthRows,
   SONYC_COARSE_LABELS
 } from "../sonycData.js";
-import {createFlagshipColorScale} from "./colorScale.js";
+import {createFlagshipColorScale} from "./tools/colorScale.js";
 
 const transitionMs = 100;
 // Stacked rings no longer overlap, so a high baseline opacity keeps each

@@ -1,6 +1,6 @@
 import * as d3 from "npm:d3";
 import {SONYC_COARSE_CATEGORIES, SONYC_COARSE_KEY_BY_NAME} from "../sonycData.js";
-import {createFlagshipColorScale} from "./colorScale.js";
+import {createFlagshipColorScale} from "./tools/colorScale.js";
 
 const transitionMs = 100;
 const defaultOpacity = 0.75;

@@ -1,202 +1,53 @@
 @import url("observablehq:default.css");
 
-:root {
-    
-    --theme-foreground: #1B0A08;
-    --theme-background: #FFFFFF;
-    --theme-background-alt: #FAFAFA;
-    --theme-foreground-alt: #245DB2; /* heading color */
-    --theme-foreground-muted: #808080;
-    --theme-foreground-faint: #DADADA;
-    --theme-foreground-fainter: #F5F5F5;
-    --theme-foreground-faintest: #FAFAFA;
-    --theme-foreground-focus: #245DB2;
-    
-    --chart-opacity-default: 0.75;
-    --chart-group-fill-opacity: 0.08;
-    --chart-stroke-thin: 1;
-    --chart-stroke-strong: 2;
-    --chart-label-font-sm: 12px;
-    --chart-label-font-md: 14px;
-    --chart-label-font-lg: 16px;
-
-    /* Standardized gap between any heading and the text that follows it. */
-    --heading-copy-gap: 10px;
-
-    background-color: var(--theme-background);
-   
+body {
+  font-family: "DM Mono", monospace;
+  font-weight: 400;
 }
 
-h1, h2 {
-    font-family: "Old Standard TT", serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-    margin-bottom: var(--heading-copy-gap);
+.tooltip {
+  font-size: 12px;
+  color: #fff;
+  background-color: #1b1b1b;
+  border-radius: 5px;
+
+  padding: 5px 7px;
+
 }
 
-h3, h4, h5, h6 {
-    font-family: "DM Sans", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-    margin-bottom: var(--heading-copy-gap); 
-}
 
+.bubble-chart-new .strip-chart .sound-input {
+  font-family: sans-serif;
+}
 
 h1 {
-    font-size: 52px;
-    color: var(--theme-foreground-alt);
+  margin: 50px 0px;
 }
 
-h2 {
-    font-size: 32px;
-    color: var(--theme-foreground);
-}
-
-h3 {
-    font-size: 24px;
-    color: var(--theme-foreground);
-}
-
-body {
-    font-size: 12px;
-    font-family: "DM Sans", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-    color: var(--theme-foreground);
-}
-
-p a {
-    text-decoration: none;
-    font-weight: 700;
-    color: #BD4639!important;
-}
-
-svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip {
-    font-family: "DM Sans", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-}
-
-.chart-header {
-    margin: 0 0 24px;
-    position: relative;
-    z-index: 1;
-}
-
-.chart-header h3 {
-    margin: 0 0 var(--heading-copy-gap);
-    max-width: none;
-}
-
-.chart-header p {
-    margin: 0px;
-    max-width: none;
-    line-height: 1.2;
-}
-
-/* Shared chart footnote: keeps source and measurement notes below the content. */
-.chart-footnote {
-  margin: 10px 0px;
-  max-width: none;
-  color: var(--theme-foreground-muted);
-  font-family: "DM Sans", sans-serif;
-  font-size: 11px;
-  line-height: 1.2;
-}
-
-/* Bubble chart: wrapper, responsive SVG, pointer behavior, and label geometry.
-   max-width matches the theme's 640px text width and the radial chart below,
-   with a margin that keeps the chart visibly separated from surrounding copy. */
-.bubble-chart {
-  margin: 24px 0;
-  max-width: 640px;
-  width: 100%;
-  position: relative;
-  color: var(--theme-foreground);
-
-}
-
-.bubble-chart__svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.bubble-chart .hierarchy-circle {
-  cursor: pointer;
-}
-
-.bubble-chart .bubble-label {
-  pointer-events: none;
-  text-anchor: middle;
-  dominant-baseline: middle;
-  stroke-width: 0;
-  font-weight: 400;
-}
-
-.bubble-chart .bubble-label__name {
-  font-weight: 700;
-}
-
-.bubble-chart .bubble-label__value {
-  font-weight: 400;
-  font-style: normal;
-}
-
-.bubble-chart .bubble-label-arc {
-  fill: none;
-  stroke: none;
-}
-
-.bubble-chart__tooltip, .radial-presence-chart__tooltip { 
-  position: absolute; 
-  top: 0; 
-  left: 0; 
-  transform: translate(-9999px, -9999px); 
-  pointer-events: none; 
-
-  background: var(--theme-background); 
-  color: var(--theme-foreground);
-  border: 0.75px solid var(--theme-foreground); 
-  border-radius: 0px;
-  padding: 0.35rem 0.7rem; 
-  font-size: 12px; 
-  line-height: 1.5; 
-  white-space: wrap; 
-  z-index: 10; 
-  opacity: 0; 
-  transition: opacity 150ms ease;
+h1, h2, h3 {
   font-family: "DM Sans", sans-serif;
 }
 
-.radial-presence-chart {
-  position: relative;
+h1, h2, h3:hover {
+  text-decoration: none;
 }
 
-.bubble-chart__tooltip .tooltip-row, .radial-presence-chart__tooltip .tooltip-row { 
-  display: grid; 
-  grid-template-columns: max-content minmax(0, 1fr); 
-  column-gap: 2rem; 
-  align-items: baseline; 
-} 
-
-.bubble-chart__tooltip .tooltip-label, .radial-presence-chart__tooltip .tooltip-label { 
-  text-align: left; 
-  font-weight: 700;
+h2, h3 {
+    margin: 30px 0px;
 }
 
-.bubble-chart__tooltip .tooltip-value, .radial-presence-chart__tooltip .tooltip-value { 
-  min-width: 0; 
-  text-align: right; 
-  font-weight: 400;
-  font-style: normal;
+:where(p, li, blockquote, td) a[href] {
+  color: #2561ba;
+  font-weight: 500;
 }
 
-.radial-presence-chart {
+:where(p, li, blockquote, td) a[href]:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+
+/* .radial-presence-chart {
 
   max-width: var(--radial-chart-max-width);
   height: auto;
@@ -204,8 +55,6 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
   margin: 24px 0;
   position: relative;
 }
-
-/* Legend controls: wrapping, horizontal distribution, row spacing, and bottom gap. */
 .radial-presence-chart__legend {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -230,37 +79,8 @@ svg text, .bubble-chart, .bubble-chart__tooltip, .radial-presence-chart__tooltip
   display: block;
 }
 
-/* Axis label controls: muted color and shared chart label size. */
 .radial-presence-chart__x-label,
 .radial-presence-chart__y-label {
   fill: var(--theme-foreground-muted);
   font-size: 12px;
-}
-
-
-
-
-.dm-sans-regular {
-  font-family: "DM Sans", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.old-standard-tt-regular {
-  font-family: "Old Standard TT", serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.old-standard-tt-bold {
-  font-family: "Old Standard TT", serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.old-standard-tt-regular-italic {
-  font-family: "Old Standard TT", serif;
-  font-weight: 400;
-  font-style: italic;
-}
+} */

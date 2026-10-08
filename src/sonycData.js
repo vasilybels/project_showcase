@@ -13,18 +13,18 @@ const SONYC_CATEGORY_CONFIG = [
     key: "2_machinery-impact_presence",
     name: "Machinery",
     children: [
-      {key: "2-1_rock-drill_presence", name: "Rock drill"},
-      {key: "2-2_jackhammer_presence", name: "Jackhammer"},
-      {key: "2-3_hoe-ram_presence", name: "Hoe ram"},
-      {key: "2-4_pile-driver_presence", name: "Pile driver"},
-      {key: "2-X_other-unknown-impact-machinery_presence", name: "Unknown machinery"}
+      {key: "2-1_rock-drill_presence", name: "Rock drill impact"},
+      {key: "2-2_jackhammer_presence", name: "Jackhammer impact"},
+      {key: "2-3_hoe-ram_presence", name: "Hoe ram impact"},
+      {key: "2-4_pile-driver_presence", name: "Pile driver impact"},
+      {key: "2-X_other-unknown-impact-machinery_presence", name: "Unknown machinery impact"}
     ]
   },
   {
     key: "3_non-machinery-impact_presence",
     name: "Non machinery",
     children: [
-      {key: "3-1_non-machinery-impact_presence", name: "Non machinery"}
+      {key: "3-1_non-machinery-impact_presence", name: "Non-machinery impact"}
     ],
     collapseSingleChild: true
   },
@@ -45,8 +45,8 @@ const SONYC_CATEGORY_CONFIG = [
       {key: "5-1_car-horn_presence", name: "Car horn"},
       {key: "5-2_car-alarm_presence", name: "Car alarm"},
       {key: "5-3_siren_presence", name: "Siren"},
-      {key: "5-4_reverse-beeper_presence", name: "Car reverse beeper"},
-      {key: "5-X_other-unknown-alert-signal_presence", name: "Other alert signals"}
+      {key: "5-4_reverse-beeper_presence", name: "Reverse beeper"},
+      {key: "5-X_other-unknown-alert-signal_presence", name: "Other/unknown alert signals"}
     ]
   },
   {
@@ -56,25 +56,25 @@ const SONYC_CATEGORY_CONFIG = [
       {key: "6-1_stationary-music_presence", name: "Stationary music"},
       {key: "6-2_mobile-music_presence", name: "Mobile music"},
       {key: "6-3_ice-cream-truck_presence", name: "Ice cream truck"},
-      {key: "6-X_music-from-uncertain-source_presence", name: "Music from an uncertain source"}
+      {key: "6-X_music-from-uncertain-source_presence", name: "Music from uncertain source"}
     ]
   },
   {
     key: "7_human-voice_presence",
     name: "Voices",
     children: [
-      {key: "7-1_person-or-small-group-talking_presence", name: "Talking"},
-      {key: "7-2_person-or-small-group-shouting_presence", name: "Shouting"},
+      {key: "7-1_person-or-small-group-talking_presence", name: "Person or small group talking"},
+      {key: "7-2_person-or-small-group-shouting_presence", name: "Person or small group shouting"},
       {key: "7-3_large-crowd_presence", name: "Large crowd"},
       {key: "7-4_amplified-speech_presence", name: "Amplified speech"},
-      {key: "7-X_other-unknown-human-voice_presence", name: "Other"}
+      {key: "7-X_other-unknown-human-voice_presence", name: "Other/unknown human voice"}
     ]
   },
   {
     key: "8_dog_presence",
     name: "Dog",
     children: [
-      {key: "8-1_dog-barking-whining_presence", name: "Dog"}
+      {key: "8-1_dog-barking-whining_presence", name: "Dog barking/whining"}
     ],
     collapseSingleChild: true
   }
