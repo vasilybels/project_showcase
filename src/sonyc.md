@@ -18,17 +18,24 @@ const rows = await FileAttachment("./data/data.csv").csv();
 
 # What Sound Sensors Say About New York City’s Noise Pollution
 
-From late 2016 to early 2020, [**Sounds of New York City (SONYC)**](https://wp.nyu.edu/sonyc/) used smart noise sensors to collect 30-second sound clips from across the Big Apple.
+From late 2016 to early 2020, a team of researchers and volunteers at [Sounds of New York City (SONYC)](https://wp.nyu.edu/sonyc/) used smart sound sensors to collect 30-second clips from across the Big Apple.
 
-A team of researchers used these clips to assess noise levels in New York City's outdoor environments. With most of the sensors in downtown Manhattan and some in Brooklyn, Queens, and uptown, the data reflect outdoor sounds New Yorkers are likely to hear on their daily commutes.
+The team used these clips to assess noise levels in New York City's outdoor environments, marking the *presence* of several major noise sources in each clip, including machinery impact, non-machinery impact, construction equipment, voices, dogs, engines, and car alarms. With most sensors around the NYU area in downtown Manhattan and some in the outer boroughs, the data reflect outdoor sounds New Yorkers are most likely to hear in their daily lives.
 
 ## Motivation
 
 In 2026 alone, the city has received over [145000](https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2020-to-Present/erm2-nwe9/about_data) 311 complaints about noise on the sidewalk or street. The SONYC project can help understand when certain sounds can be encountered.
 
+By exploring this dataset, one can understand, among many other things,
+* whether construction crews obey the legal timeframes in which they are allowed to work and produce noise,
+* the amounts of vehicles and people on New York streets at different times of day,
+* patterns of construction, driving, and going out across seasons, thanks to data spanning four years
+
 ## Data composition
 
-Researchers and volunteers tagged the presence of 23 sounds, chosen in consultation with the New York City Department of Environmental Protection (DEP).  These 23 fine-grained sound categories were then grouped into eight coarse-grained classes.
+Researchers and volunteers tagged the presence of 23 sounds, chosen in consultation with the New York City Department of Environmental Protection (DEP). These 23 fine-grained sound categories were then grouped into eight coarse-grained classes.
+
+The chart below shows how many times each coarse-grained category of sounds has been recorded (in other words, it counts the "presences" of each sound across the database of all available 30-second clip).
 
 ```js
 const dataCounted = countPresences(rows, SONYC_CATEGORIES);
