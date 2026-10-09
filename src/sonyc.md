@@ -58,7 +58,9 @@ display(renderStrip({data: countByHour(rows, sound)}));
 ## References
 Read more about the motivation and creation of this dataset see the [DCASE 2020 Urban Sound Tagging with Spatiotemporal Context Task website](http://dcase.community/challenge2020/task-urban-sound-tagging-with-spatiotemporal-context).
 
-[Back to all projects](/)
+<div>
+	<a href="/" class="back-link">Back to all projects</a>
+</div>
 
 <!-- ```js
 const topCategoryTotals = sonycCharts.radialPresence.sortedCategories

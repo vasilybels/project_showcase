@@ -36,6 +36,18 @@ h2, h3 {
     margin: 30px 0px;
 }
 
+.back-link {
+  color: #bd4639!important;
+  font-weight: 500!important;
+  font-style: italic;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+
 :where(p, li, blockquote, td) a[href] {
   color: #2561ba;
   font-weight: 500;
