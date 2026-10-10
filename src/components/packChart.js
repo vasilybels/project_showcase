@@ -45,10 +45,24 @@ export default function renderChart({data} = {}) {
         .join("g")
         .attr("transform", d => `translate(${d.x},${d.y})`);
 
+
+    const getFill = (d) => {
+        if (d.children) {
+            return "#fff";
+        }
+        if (d.data.key === "1-3_large-sounding-engine_presence") {
+            return "hsl(6, 54%, 80%)";
+        }
+        if (d.data.key === "5-1_car-horn_presence") {
+            return "hsl(216, 67%, 80%)";
+        }
+        return "#e9e9e9";
+    }
+
     // Add a filled or stroked circle.
     node.append("circle")
         .attr("class", "bubble-chart-new-circle")
-        .attr("fill", d => d.children ?"#fff" : "#e9e9e9")
+        .attr("fill", d => getFill(d))
         .attr("stroke","#bbbbbb")
         .attr("r", d => d.r)
         .on("mouseenter", (event, d) => {

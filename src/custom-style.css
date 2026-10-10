@@ -59,6 +59,17 @@ h2, h3 {
   text-underline-offset: 5px;
 }
 
+.large-engines-label {
+  color: #bd4639;
+  font-weight: 500;
+}
+
+.car-horns-label {
+  color: #2561ba;
+  font-weight: 500;
+
+}
+
 /* .radial-presence-chart {
 
   max-width: var(--radial-chart-max-width);

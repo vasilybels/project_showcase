@@ -5,10 +5,9 @@ toc: true
 
 ```js
 import { buildSonicChartData, filterUniversalTruthRows } from "./sonycData.js";
-import { renderBubbleChart } from "./components/chart1.js";
 import SONYC_CATEGORIES from "./components/tools/categories.js";
 import countPresences from "./components/tools/extract.js";
-import renderChart from "./components/chart15.js";
+import renderChart from "./components/packChart.js";
 import countByHour from "./components/tools/countByHour.js";
 import renderStrip from "./components/stripChart.js";
 
@@ -31,20 +30,9 @@ By exploring this dataset, one can understand, among many other things,
 * the amounts of vehicles and people on New York streets at different times of day,
 * patterns of construction, driving, and going out across seasons, thanks to data spanning four years
 
-## Data composition
-
-Researchers and volunteers tagged the presence of 23 sounds, chosen in consultation with the New York City Department of Environmental Protection (DEP). These 23 fine-grained sound categories were then grouped into eight coarse-grained classes.
-
-The chart below shows how many times each coarse-grained category of sounds has been recorded (in other words, it counts the "presences" of each sound across the database of all available 30-second clip).
-
-```js
-const dataCounted = countPresences(rows, SONYC_CATEGORIES);
-display(renderChart({data: dataCounted}));
-```
-
-Over the course of four years, the sensors mostly picked up the sounds of car engines, alerts, and human voices. Car horns comprised over half of all alert signals, and vehicles with large engines made half of all engine noises. In addition, non-machinery impacts—loud bursts, kocks or slaps that are hard to place under a single category—were identified in nearly 20% of sound clips.
-
 ## Temporal distribution
+
+The following shart shows distribution of different sounds across a 24 hour cycle. Hover over a segment to see the share of recordings at this hour a particular sound comprised.
 
 ```js
 const soundOptions = new Map(SONYC_CATEGORIES.map(c => [c.name, c.key]));
@@ -54,6 +42,29 @@ const sound = view(soundInput);
 ```js
 display(renderStrip({data: countByHour(rows, sound)}));
 ```
+
+## Data composition
+
+Researchers and volunteers tagged the presence of 23 sounds, chosen in consultation with the New York City Department of Environmental Protection (DEP). These 23 fine-grained sound categories were then grouped into eight coarse-grained classes.
+
+The chart below shows how often each coarse-grained category of sounds has been recorded (in other words, it counts the "presences" of each sound across the database of all available 30-second clip).
+
+```js
+const dataCounted = countPresences(rows, SONYC_CATEGORIES);
+display(renderChart({data: dataCounted}));
+```
+
+Over the course of four years, the sensors mostly picked up sounds of car engines, alerts, and human voices. <span class="car-horns-label">Car horns</span> comprised over half of all alert signals, and <span class="large-engines-label">large engines</span> made half of all engine noises. In addition, non-machinery impacts (loud bursts, kocks or slaps that are hard to place under a single category) were identified in nearly 20% of clips.
+
+## Methodology
+
+The visualizations are produced by a render layer in the chart components: `packChart.js` creates the packed category frequency view, and `stripChart.js` renders the 24-hour distribution.
+
+This explorer uses D3's native data analysis functions to create a lightweight data pipeline.
+
+* Raw SONYC data is loaded as a `.csv` file from the project data folder and normalized through a set of utility functions
+* Clip-level *presences* are counted with `extract.js`, hourly patterns are aggregated with `countByHour.js`, and filtering logic is applied through `filterUniversalTruthRows` before the chart renders to ensure data accuracy. Without `filterUniversalTruthRows`, the charts would have included presences that were not verified by the researchers and/or volunteers
+* Together, these functions turn a large sensor log into a small, analysis-ready dataframe
 
 ## References
 Read more about the motivation and creation of this dataset see the [DCASE 2020 Urban Sound Tagging with Spatiotemporal Context Task website](http://dcase.community/challenge2020/task-urban-sound-tagging-with-spatiotemporal-context).
