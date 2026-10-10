@@ -70,6 +70,17 @@ h2, h3 {
 
 }
 
+.footer {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  font-family: "DM Sans", sans-serif;
+}
+
+.footer a {
+  font-weight: 700;
+}
+
 /* .radial-presence-chart {
 
   max-width: var(--radial-chart-max-width);

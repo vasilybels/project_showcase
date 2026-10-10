@@ -14,6 +14,10 @@ import renderStrip from "./components/stripChart.js";
 const rows = await FileAttachment("./data/data.csv").csv();
 ```
 
+<div>
+	<a href="/" class="back-link">Back to all projects</a>
+</div>
+
 
 # What Sound Sensors Say About New York City’s Noise Pollution
 
@@ -58,13 +62,9 @@ Over the course of four years, the sensors mostly picked up sounds of car engine
 
 ## Methodology
 
-The visualizations are produced by a render layer in the chart components: `packChart.js` creates the packed category frequency view, and `stripChart.js` renders the 24-hour distribution.
+This explorer uses D3's native functions, namely [`d3.rollup()`](https://d3js.org/d3-array/group#rollup) and [`d3.hierarchy()`](https://d3js.org/d3-hierarchy) to create a lightweight data analysis and visualization pipeline. The original SONYC data is loaded as a `.csv` file from the project folder.
 
-This explorer uses D3's native data analysis functions to create a lightweight data pipeline.
-
-* Raw SONYC data is loaded as a `.csv` file from the project data folder and normalized through a set of utility functions
-* Clip-level *presences* are counted with `extract.js`, hourly patterns are aggregated with `countByHour.js`, and filtering logic is applied through `filterUniversalTruthRows` before the chart renders to ensure data accuracy. Without `filterUniversalTruthRows`, the charts would have included presences that were not verified by the researchers and/or volunteers
-* Together, these functions turn a large sensor log into a small, analysis-ready dataframe
+The visualizations are produced by a render layer in the chart components: [`packChart.js`](https://github.com/vasilybels/vasilys-d3-projects/blob/main/src/components/packChart.js) creates the packed category frequency view, and [`stripChart.js`](https://github.com/vasilybels/vasilys-d3-projects/blob/main/src/components/stripChart.js) renders the 24-hour distribution.
 
 ## References
 Read more about the motivation and creation of this dataset see the [DCASE 2020 Urban Sound Tagging with Spatiotemporal Context Task website](http://dcase.community/challenge2020/task-urban-sound-tagging-with-spatiotemporal-context).

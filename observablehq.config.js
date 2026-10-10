@@ -28,16 +28,17 @@ export default {
   // header: "", // what to show in the header (HTML)
   sidebar: false, // whether to show the sidebar
   toc: false, // whether to show the table of contents
-  pager: true, // whether to show previous & next links in the footer
+  pager: false, // whether to show previous & next links in the footer
   // output: "dist", // path to the output root for build
   search: false, // activate search
   linkify: true, // convert URLs in Markdown to links
-  typographer: false, // smart quotes and other typographic improvements
+  typographer: true, // smart quotes and other typographic improvements
   // preserveExtension: false, // drop .html from URLs
   // preserveIndex: false, // drop /index from URLs
   footer: () => {
     return `
       <div class="footer">
+        <span>Vasily Belousov</span>
         <a href="https://www.linkedin.com/in/vasilybelousov" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         <a href="https://github.com/vasilybels" target="_blank" rel="noopener noreferrer">GitHub</a>
       </div>
